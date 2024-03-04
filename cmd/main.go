@@ -27,6 +27,7 @@ func main() {
 	router := gin.Default()
 	router.GET("/books", getBooks)
 	router.POST("/books", addBook)
+	router.DELETE("/books/:id", delBook)
 	router.Run("localhost:8080")
 }
 
@@ -72,4 +73,14 @@ func addBook(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, awesomeBook)
+}
+
+func delBook(c *gin.Context) {
+	id := c.Param("id")
+
+	_, err := db.Exec("DELETE FROM books WHERE id=$1", id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
