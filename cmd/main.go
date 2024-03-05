@@ -26,6 +26,7 @@ func main() {
 	}
 	router := gin.Default()
 	router.GET("/books", getBooks)
+	router.GET("/books/:id", getBookById)
 	router.POST("/books", addBook)
 	router.DELETE("/books/:id", delBook)
 	router.Run("localhost:8080")
@@ -83,4 +84,27 @@ func delBook(c *gin.Context) {
 		log.Fatal(err)
 	}
 
+}
+
+func getBookById(c *gin.Context) {
+	id := c.Param("id")
+	rows, err := db.Query("SELECT * FROM books WHERE id = $1", id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var books []book
+
+	for rows.Next() {
+		var a book
+		if err := rows.Scan(&a.ID, &a.Title, &a.Author); err != nil {
+			log.Fatal(err)
+		}
+		books = append(books, a)
+	}
+	if err = rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+	c.IndentedJSON(http.StatusOK, books)
 }
